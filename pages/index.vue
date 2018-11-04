@@ -1,66 +1,36 @@
 <template>
   <section class="container">
-    <div>
-      <logo/>
-      <h1 class="title">
-        eos-addressbook
-      </h1>
-      <h2 class="subtitle">
-        Addressbook via EOS blockchain
-      </h2>
-      <div class="links">
-        <a
-          href="https://nuxtjs.org/"
-          target="_blank"
-          class="button--green">Documentation</a>
-        <a
-          href="https://github.com/nuxt/nuxt.js"
-          target="_blank"
-          class="button--grey">GitHub</a>
-      </div>
-    </div>
+    <h2 class='mt-5 mb-5 text-center'>連絡先リスト</h2>
+    <table class="table">
+      <thead>
+        <tr>
+          <td>ID</td>
+          <td>名前</td>
+          <td>住所</td>
+          <td>電話番号</td>
+          <td></td>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for='contact in contacts' :key='contact.id'>
+          <td>{{contact.id}}</td>
+          <td>{{contact.name}}</td>
+          <td>{{contact.address}}</td>
+          <td>{{contact.tel}}</td>
+          <td>
+          </td>
+        </tr>
+      </tbody>
+    </table>
   </section>
 </template>
 
 <script>
-import Logo from '~/components/Logo.vue'
-
 export default {
-  components: {
-    Logo
-  }
+  data () {
+    return {
+      contacts: [],
+    }
+  },
 }
 </script>
-
-<style>
-
-.container {
-  min-height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-}
-
-.title {
-  font-family: 'Quicksand', 'Source Sans Pro', -apple-system, BlinkMacSystemFont,
-    'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  display: block;
-  font-weight: 300;
-  font-size: 100px;
-  color: #35495e;
-  letter-spacing: 1px;
-}
-
-.subtitle {
-  font-weight: 300;
-  font-size: 42px;
-  color: #526488;
-  word-spacing: 5px;
-  padding-bottom: 15px;
-}
-
-.links {
-  padding-top: 15px;
-}
-</style>
