@@ -1,7 +1,7 @@
 <template>
   <section class="container mt-5">
     <h2 class='mb-4 text-center'>連絡先リスト</h2>
-    <table class="table">
+    <table class="table table-striped">
       <thead>
         <tr>
           <th>ID</th>
@@ -18,15 +18,15 @@
           <td>{{contact.address}}</td>
           <td>{{contact.tel}}</td>
           <td>
-            <a href="#" class="btn btn-success btn-sm">編集</a>
-            <a href="#" class="btn btn-danger btn-sm">削除</a>
+            <b-btn variant="outline-success" size='sm' @click="editContact(contact)">編集</b-btn>
+            <b-btn variant="outline-danger" size='sm' @click="deleteContract(contact)">削除</b-btn>
           </td>
         </tr>
       </tbody>
     </table>
-    <b-btn variant="primary" @click="newContact">新規登録</b-btn>
+    <b-btn variant="outline-primary" @click="newContact">新規登録</b-btn>
 
-    <b-modal v-model="showModal" id="contactModal" :title="modalTitle">
+    <b-modal v-model="showModal" id="contactModal" :title="modalTitle" centered>
       <b-form>
         <b-form-group label="名前" label-for="name">
           <b-form-input type="text" v-model="modalContact.name" :state="!$v.modalContact.name.$invalid" aria-describedby="nameFeedback"></b-form-input>
@@ -34,7 +34,7 @@
         </b-form-group>
         <b-form-group label="住所" label-for="address">
           <b-form-input type="text" v-model="modalContact.address" :state="!$v.modalContact.address.$invalid" aria-describedby="addressFeedback"></b-form-input>
-          <b-form-invalid-feedback id="addressFeedback">住所は 10-20 文字で入力してください</b-form-invalid-feedback>
+          <b-form-invalid-feedback id="addressFeedback">住所は 4-20 文字で入力してください</b-form-invalid-feedback>
         </b-form-group>
         <b-form-group label="電話番号" label-for="tel">
           <b-form-input type="text" v-model="modalContact.tel" :state="!$v.modalContact.tel.$invalid" aria-describedby="telFeedback" ></b-form-input>
@@ -84,7 +84,7 @@ export default {
       return this.idExists ? '連絡先編集' : '連絡先新規登録'
     },
     modalButtonClass () {
-      return this.idExists ? 'success' : 'primary'
+      return 'outline-' + (this.idExists ? 'success' : 'primary')
     },
     modalButtonText () {
       return this.idExists ? '更新する' : '登録する'
@@ -99,7 +99,7 @@ export default {
       },
       address: {
         required,
-        minLength: minLength(10),
+        minLength: minLength(4),
         maxLength: maxLength(20)
       },
       tel: {
@@ -114,8 +114,17 @@ export default {
       this.modalContact = {}
       this.showModal = true
     },
-    saveContact () {
+    editContact (contact) {
+      this.modalContact = Object.assign({}, contact)
 
+      this.showModal = true
+    },
+    deleteContact (contact) {
+      if (confirm('連絡先を削除します。よろしいですか？')) {
+        this.contacts = this.contacts.filter(item => item.id !== contact.id)
+      }
+    },
+    saveContact () {
     }
   }
 }
