@@ -19,7 +19,7 @@
           <td>{{contact.tel}}</td>
           <td>
             <b-btn variant="outline-success" size='sm' @click="editContact(contact)">編集</b-btn>
-            <b-btn variant="outline-danger" size='sm' @click="deleteContract(contact)">削除</b-btn>
+            <b-btn variant="outline-danger" size='sm' @click="deleteContact(contact)">削除</b-btn>
           </td>
         </tr>
       </tbody>
@@ -125,6 +125,27 @@ export default {
       }
     },
     saveContact () {
+      if (this.idExists) {
+        const index = this.contacts.findIndex(item => item.id === this.modalContact.id)
+        const contact = this.contacts[index]
+        console.log('contact :', contact)
+        Object.assign(contact, this.modalContact)
+
+        Vue.set(this.contacts, index, contact)
+      } else {
+        let nextId = 0
+        if (this.contacts.length === 0) {
+          nextId = 1
+        } else {
+          nextId = Math.max(...this.contacts.map(item => item.id)) + 1
+        }
+
+        const contact = Object.assign({ id: nextId }, this.modalContact)
+
+        this.contacts.push(contact)
+      }
+
+      this.showModal = false
     }
   }
 }
