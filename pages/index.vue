@@ -60,17 +60,14 @@
 import Vue from 'vue'
 import { validationMixin } from "vuelidate"
 import { required, minLength, maxLength } from "vuelidate/lib/validators"
+import Eos from 'eosjs'
 
 export default {
   data () {
     return {
       modalContact: {},
       showModal: false,
-      contacts: [
-        { id: 1, name: '山田太郎', address: '東京都渋谷区', tel: '09012340001' },
-        { id: 2, name: '田中陽子', address: '北海道札幌市', tel: '09012340002' },
-        { id: 3, name: '佐藤一郎', address: '沖縄県那覇市', tel: '09012340003' },
-      ],
+      contacts: [],
     }
   },
   mixins: [
@@ -108,6 +105,16 @@ export default {
         maxLength: maxLength(13)
       },
     }
+  },
+  async asyncData (context) {
+    const eos = Eos({
+      httpEndpoint: 'http://127.0.0.1:7777',
+      chainId: 'cf057bbfb72640471fd910bcb67639c22df9f92470936cddc1ade0e2f2e7dc4f',
+    })
+
+    const result = await eos.getTableRows(true, 'addressbook', 'bob', 'people')
+
+    return { contacts: result.rows }
   },
   methods: {
     newContact () {
@@ -147,6 +154,9 @@ export default {
 
       this.showModal = false
     }
-  }
+  },
+
+  created() {
+  },
 }
 </script>
