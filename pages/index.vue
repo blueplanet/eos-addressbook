@@ -1,6 +1,8 @@
 <template>
   <section class="container mt-5">
     <h2 class='mb-4 text-center'>連絡先リスト</h2>
+    <b-alert :show='this.warning' variant="warning" dismissible>{{this.warning}}</b-alert>
+    <b-alert :show='this.info' variant="success" dismissible>{{this.info}}</b-alert>
     <table class="table table-striped">
       <thead>
         <tr>
@@ -65,6 +67,9 @@ import Eos from 'eosjs'
 export default {
   data () {
     return {
+      eos: null,
+      info: null,
+      warning: null,
       modalContact: {},
       showModal: false,
       contacts: [],
@@ -110,11 +115,12 @@ export default {
     const eos = Eos({
       httpEndpoint: 'http://127.0.0.1:7777',
       chainId: 'cf057bbfb72640471fd910bcb67639c22df9f92470936cddc1ade0e2f2e7dc4f',
+      keyProvider: '5JdhnFydwSo2BBDQFf9vDAVa2Si32bHAwFwWtYXW3cf2NgsMDyM',
     })
 
     const result = await eos.getTableRows(true, 'addressbook', 'bob', 'people')
 
-    return { contacts: result.rows }
+    return { eos,  contacts: result.rows }
   },
   methods: {
     newContact () {
@@ -133,26 +139,36 @@ export default {
     },
     saveContact () {
       if (this.idExists) {
-        const index = this.contacts.findIndex(item => item.id === this.modalContact.id)
-        const contact = this.contacts[index]
-        console.log('contact :', contact)
-        Object.assign(contact, this.modalContact)
-
-        Vue.set(this.contacts, index, contact)
+        this.updateContact()
       } else {
-        let nextId = 0
-        if (this.contacts.length === 0) {
-          nextId = 1
-        } else {
-          nextId = Math.max(...this.contacts.map(item => item.id)) + 1
-        }
-
-        const contact = Object.assign({ id: nextId }, this.modalContact)
-
-        this.contacts.push(contact)
+        this.createContact()
       }
 
       this.showModal = false
+    },
+    createContact () {
+      this.eos.contract('addressbook').then(addressbook => {
+        addressbook.create(
+          'bob', this.modalContact.name, this.modalContact.address, this.modalContact.tel,
+          { authorization: 'bob' }
+        ).then(result => {
+          // トランザクション送信成功
+          this.warning = 'トランザクションを送信しました'
+        }).then(async () => {
+          // トランザクションがブロックに含められたので、データを取得しなおす
+          const result = await this.eos.getTableRows(true, 'addressbook', 'bob', 'people')
+          this.contacts = result.rows
+          this.info = '連絡先を登録しました'
+        })
+      })
+    },
+    updateContact () {
+      const index = this.contacts.findIndex(item => item.id === this.modalContact.id)
+      const contact = this.contacts[index]
+      console.log('contact :', contact)
+      Object.assign(contact, this.modalContact)
+
+      Vue.set(this.contacts, index, contact)
     }
   },
 
