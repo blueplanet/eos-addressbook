@@ -1,8 +1,8 @@
 <template>
   <section class="container mt-5">
     <h2 class='mb-4 text-center'>連絡先リスト</h2>
-    <b-alert :show='this.warning' variant="warning" dismissible>{{this.warning}}</b-alert>
-    <b-alert :show='this.info' variant="success" dismissible>{{this.info}}</b-alert>
+    <b-alert :show='this.warning !== null' variant="warning" dismissible>{{this.warning}}</b-alert>
+    <b-alert :show='this.info !== null' variant="success" dismissible>{{this.info}}</b-alert>
     <table class="table table-striped">
       <thead>
         <tr>
@@ -134,7 +134,23 @@ export default {
     },
     deleteContact (contact) {
       if (confirm('連絡先を削除します。よろしいですか？')) {
-        this.contacts = this.contacts.filter(item => item.id !== contact.id)
+        this.warning = null
+        this.info = null
+
+        this.eos.contract('addressbook').then(addressbook => {
+          addressbook.destroy(
+            'bob', contact.id,
+            { authorization: 'bob' }
+          ).then(result => {
+            // トランザクション送信成功
+            this.warning = 'トランザクションを送信しました'
+          }).then(async () => {
+            // トランザクションがブロックに含められたので、データを取得しなおす
+            const result = await this.eos.getTableRows(true, 'addressbook', 'bob', 'people')
+            this.contacts = result.rows
+            this.info = '連絡先を削除しました'
+          })
+        })
       }
     },
     saveContact () {
@@ -147,6 +163,9 @@ export default {
       this.showModal = false
     },
     createContact () {
+      this.warning = null
+      this.info = null
+
       this.eos.contract('addressbook').then(addressbook => {
         addressbook.create(
           'bob', this.modalContact.name, this.modalContact.address, this.modalContact.tel,
@@ -163,12 +182,23 @@ export default {
       })
     },
     updateContact () {
-      const index = this.contacts.findIndex(item => item.id === this.modalContact.id)
-      const contact = this.contacts[index]
-      console.log('contact :', contact)
-      Object.assign(contact, this.modalContact)
+      this.warning = null
+      this.info = null
 
-      Vue.set(this.contacts, index, contact)
+      this.eos.contract('addressbook').then(addressbook => {
+        addressbook.update(
+          'bob', this.modalContact.id, this.modalContact.name, this.modalContact.address, this.modalContact.tel,
+          { authorization: 'bob' }
+        ).then(result => {
+          // トランザクション送信成功
+          this.warning = 'トランザクションを送信しました'
+        }).then(async () => {
+          // トランザクションがブロックに含められたので、データを取得しなおす
+          const result = await this.eos.getTableRows(true, 'addressbook', 'bob', 'people')
+          this.contacts = result.rows
+          this.info = '連絡先を更新しました'
+        })
+      })
     }
   },
 
