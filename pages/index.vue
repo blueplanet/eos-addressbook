@@ -1,6 +1,9 @@
 <template>
   <section class="container mt-5">
-    <h2 class='mb-4 text-center'>連絡先リスト</h2>
+    <nav class="navbar navbar-dark bg-secondary mb-3">
+      <span class="navbar-brand mb-0 h1">連絡先リスト</span>
+      <span v-if='account' class="navbar-text">{{account.name}}@{{account.authority}}</span>
+    </nav>
     <b-alert :show='this.warning !== null' variant="warning" dismissible>{{this.warning}}</b-alert>
     <b-alert :show='this.info !== null' variant="success" dismissible>{{this.info}}</b-alert>
     <table class="table table-striped">
@@ -72,6 +75,7 @@ export default {
   data () {
     return {
       eos: null,
+      account: null,
       info: null,
       warning: null,
       modalContact: {},
@@ -138,7 +142,7 @@ export default {
 
     const result = await eos.getTableRows(true, 'addressbook', 'bob', 'people')
 
-    return { eos, contacts: result.rows }
+    return { eos, account, contacts: result.rows }
   },
   methods: {
     newContact () {
