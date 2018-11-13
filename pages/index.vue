@@ -63,6 +63,10 @@ import Vue from 'vue'
 import { validationMixin } from "vuelidate"
 import { required, minLength, maxLength } from "vuelidate/lib/validators"
 import Eos from 'eosjs'
+import ScatterJS from 'scatterjs-core';
+import ScatterEOS from 'scatterjs-plugin-eosjs';
+
+ScatterJS.plugins(new ScatterEOS());
 
 export default {
   data () {
@@ -112,15 +116,29 @@ export default {
     }
   },
   async asyncData (context) {
-    const eos = Eos({
-      httpEndpoint: 'http://127.0.0.1:7777',
+    const network = {
+      blockchain: 'eos',
+      protocol: 'http',
+      host: '127.0.0.1',
+      port: 7777,
       chainId: 'cf057bbfb72640471fd910bcb67639c22df9f92470936cddc1ade0e2f2e7dc4f',
-      keyProvider: '5JdhnFydwSo2BBDQFf9vDAVa2Si32bHAwFwWtYXW3cf2NgsMDyM',
-    })
+    }
+
+    const connected = await ScatterJS.scatter.connect("EOS Addressbook")
+    if(!connected) return false;
+
+    const scatter = ScatterJS.scatter;
+    const requiredFields = { accounts: [network] };
+
+    await scatter.getIdentity(requiredFields);
+    const account = scatter.identity.accounts.find(x => x.blockchain === 'eos');
+    const eosOptions = { expireInSeconds: 60 };
+    const eos = scatter.eos(network, Eos, eosOptions);
+    window.ScatterJS = null;
 
     const result = await eos.getTableRows(true, 'addressbook', 'bob', 'people')
 
-    return { eos,  contacts: result.rows }
+    return { eos, contacts: result.rows }
   },
   methods: {
     newContact () {
