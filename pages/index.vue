@@ -66,10 +66,7 @@ import Vue from 'vue'
 import { validationMixin } from "vuelidate"
 import { required, minLength, maxLength } from "vuelidate/lib/validators"
 import Eos from 'eosjs'
-import ScatterJS from 'scatterjs-core';
-import ScatterEOS from 'scatterjs-plugin-eosjs';
-
-ScatterJS.plugins(new ScatterEOS());
+import ScatterJS from 'scatter-js/dist/scatter.esm'
 
 export default {
   data () {
@@ -123,9 +120,9 @@ export default {
     const network = {
       blockchain: 'eos',
       protocol: 'http',
-      host: '127.0.0.1',
+      host: '0.0.0.0',
       port: 7777,
-      chainId: 'cf057bbfb72640471fd910bcb67639c22df9f92470936cddc1ade0e2f2e7dc4f',
+      chainId: 'cf057bbfb72640471fd910bcb67639c22df9f92470936cddc1ade0e2f2e7dc4f'
     }
 
     const connected = await ScatterJS.scatter.connect("EOS Addressbook")
@@ -138,7 +135,7 @@ export default {
     const account = scatter.identity.accounts.find(x => x.blockchain === 'eos');
     const eosOptions = { expireInSeconds: 60 };
     const eos = scatter.eos(network, Eos, eosOptions);
-    window.ScatterJS = null;
+    window.scatter = null;
 
     const result = await eos.getTableRows(true, 'addressbook', 'bob', 'people')
 
@@ -161,8 +158,8 @@ export default {
 
         this.eos.contract('addressbook').then(addressbook => {
           addressbook.destroy(
-            'bob', contact.id,
-            { authorization: 'bob' }
+            this.account.name, contact.id,
+            { authorization: this.account.name }
           ).then(result => {
             // トランザクション送信成功
             this.warning = 'トランザクションを送信しました'
@@ -190,8 +187,8 @@ export default {
 
       this.eos.contract('addressbook').then(addressbook => {
         addressbook.create(
-          'bob', this.modalContact.name, this.modalContact.address, this.modalContact.tel,
-          { authorization: 'bob' }
+          this.account.name, this.modalContact.name, this.modalContact.address, this.modalContact.tel,
+          { authorization: this.account.name }
         ).then(result => {
           // トランザクション送信成功
           this.warning = 'トランザクションを送信しました'
@@ -209,8 +206,8 @@ export default {
 
       this.eos.contract('addressbook').then(addressbook => {
         addressbook.update(
-          'bob', this.modalContact.id, this.modalContact.name, this.modalContact.address, this.modalContact.tel,
-          { authorization: 'bob' }
+          this.account.name, this.modalContact.id, this.modalContact.name, this.modalContact.address, this.modalContact.tel,
+          { authorization: this.account.name }
         ).then(result => {
           // トランザクション送信成功
           this.warning = 'トランザクションを送信しました'
