@@ -85,7 +85,7 @@ export default {
   ],
   computed: {
     idExists () {
-      return this.modalContact && this.modalContact.id
+      return this.modalContact && this.modalContact.id >= 0
     },
     modalTitle () {
       return this.idExists ? '連絡先編集' : '連絡先新規登録'
@@ -119,13 +119,14 @@ export default {
   async asyncData (context) {
     const network = {
       blockchain: 'eos',
-      protocol: 'http',
-      host: '0.0.0.0',
-      port: 7777,
-      chainId: 'cf057bbfb72640471fd910bcb67639c22df9f92470936cddc1ade0e2f2e7dc4f'
+      protocol: 'https',
+      // host: 'api-kylin.eoslaomao.com',
+      host: 'kylin.eoscanada.com',
+      port: 443,
+      chainId: '5fff1dae8dc8e2fc4d5b23b2c7665c97f9e9d8edf2b6485a86ba311c25639191'
     }
 
-    const connected = await ScatterJS.scatter.connect("EOS Addressbook")
+    const connected = await ScatterJS.scatter.connect("eos-kylin-addressbook")
     if(!connected) return false;
 
     const scatter = ScatterJS.scatter;
@@ -137,7 +138,7 @@ export default {
     const eos = scatter.eos(network, Eos, eosOptions);
     window.scatter = null;
 
-    const result = await eos.getTableRows(true, 'addressbook', 'bob', 'people')
+    const result = await eos.getTableRows(true, 'eosbookaddrs', 'eosbookaddrs', 'people')
 
     return { eos, account, contacts: result.rows }
   },
@@ -156,7 +157,7 @@ export default {
         this.warning = null
         this.info = null
 
-        this.eos.contract('addressbook').then(addressbook => {
+        this.eos.contract('eosbookaddrs').then(addressbook => {
           addressbook.destroy(
             this.account.name, contact.id,
             { authorization: this.account.name }
@@ -165,7 +166,7 @@ export default {
             this.warning = 'トランザクションを送信しました'
           }).then(async () => {
             // トランザクションがブロックに含められたので、データを取得しなおす
-            const result = await this.eos.getTableRows(true, 'addressbook', 'bob', 'people')
+            const result = await this.eos.getTableRows(true, 'eosbookaddrs', 'eosbookaddrs', 'people')
             this.contacts = result.rows
             this.info = '連絡先を削除しました'
           })
@@ -185,7 +186,7 @@ export default {
       this.warning = null
       this.info = null
 
-      this.eos.contract('addressbook').then(addressbook => {
+      this.eos.contract('eosbookaddrs').then(addressbook => {
         addressbook.create(
           this.account.name, this.modalContact.name, this.modalContact.address, this.modalContact.tel,
           { authorization: this.account.name }
@@ -194,7 +195,7 @@ export default {
           this.warning = 'トランザクションを送信しました'
         }).then(async () => {
           // トランザクションがブロックに含められたので、データを取得しなおす
-          const result = await this.eos.getTableRows(true, 'addressbook', 'bob', 'people')
+          const result = await this.eos.getTableRows(true, 'eosbookaddrs', 'eosbookaddrs', 'people')
           this.contacts = result.rows
           this.info = '連絡先を登録しました'
         })
@@ -204,7 +205,7 @@ export default {
       this.warning = null
       this.info = null
 
-      this.eos.contract('addressbook').then(addressbook => {
+      this.eos.contract('eosbookaddrs').then(addressbook => {
         addressbook.update(
           this.account.name, this.modalContact.id, this.modalContact.name, this.modalContact.address, this.modalContact.tel,
           { authorization: this.account.name }
@@ -213,7 +214,7 @@ export default {
           this.warning = 'トランザクションを送信しました'
         }).then(async () => {
           // トランザクションがブロックに含められたので、データを取得しなおす
-          const result = await this.eos.getTableRows(true, 'addressbook', 'bob', 'people')
+          const result = await this.eos.getTableRows(true, 'eosbookaddrs', 'eosbookaddrs', 'people')
           this.contacts = result.rows
           this.info = '連絡先を更新しました'
         })
