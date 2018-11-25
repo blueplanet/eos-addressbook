@@ -74,6 +74,7 @@ export default {
   data () {
     return {
       eos: null,
+      eosContract: null,
       account: null,
       info: null,
       warning: null,
@@ -141,7 +142,9 @@ export default {
 
     const result = await eos.getTableRows(true, CONTRACT_ACCOUNT, CONTRACT_ACCOUNT, 'people')
 
-    return { eos, account, contacts: result.rows }
+    const eosContract = await eos.contract(CONTRACT_ACCOUNT)
+
+    return { eos, eosContract, account, contacts: result.rows }
   },
   methods: {
     async refreshContracts () {
@@ -162,18 +165,16 @@ export default {
         this.warning = null
         this.info = null
 
-        this.eos.contract('eosbookaddrs').then(addressbook => {
-          addressbook.destroy(
-            this.account.name, contact.id,
-            { authorization: this.account.name }
-          ).then(result => {
-            // トランザクション送信成功
-            this.warning = 'トランザクションを送信しました'
-          }).then(async () => {
-            // トランザクションがブロックに含められたので、データを取得しなおす
-            this.refreshContracts()
-            this.info = '連絡先を削除しました'
-          })
+        this.eosContract.destroy(
+          this.account.name, contact.id,
+          { authorization: this.account.name }
+        ).then(result => {
+          // トランザクション送信成功
+          this.warning = 'トランザクションを送信しました'
+        }).then(async () => {
+          // トランザクションがブロックに含められたので、データを取得しなおす
+          this.refreshContracts()
+          this.info = '連絡先を削除しました'
         })
       }
     },
@@ -190,36 +191,32 @@ export default {
       this.warning = null
       this.info = null
 
-      this.eos.contract('eosbookaddrs').then(addressbook => {
-        addressbook.create(
-          this.account.name, this.modalContact.name, this.modalContact.address, this.modalContact.tel,
-          { authorization: this.account.name }
-        ).then(result => {
-          // トランザクション送信成功
-          this.warning = 'トランザクションを送信しました'
-        }).then(async () => {
-          // トランザクションがブロックに含められたので、データを取得しなおす
-          this.refreshContracts()
-          this.info = '連絡先を登録しました'
-        })
+      this.eosContract.create(
+        this.account.name, this.modalContact.name, this.modalContact.address, this.modalContact.tel,
+        { authorization: this.account.name }
+      ).then(result => {
+        // トランザクション送信成功
+        this.warning = 'トランザクションを送信しました'
+      }).then(async () => {
+        // トランザクションがブロックに含められたので、データを取得しなおす
+        this.refreshContracts()
+        this.info = '連絡先を登録しました'
       })
     },
     updateContact () {
       this.warning = null
       this.info = null
 
-      this.eos.contract('eosbookaddrs').then(addressbook => {
-        addressbook.update(
-          this.account.name, this.modalContact.id, this.modalContact.name, this.modalContact.address, this.modalContact.tel,
-          { authorization: this.account.name }
-        ).then(result => {
-          // トランザクション送信成功
-          this.warning = 'トランザクションを送信しました'
-        }).then(async () => {
-          // トランザクションがブロックに含められたので、データを取得しなおす
-          this.refreshContracts()
-          this.info = '連絡先を更新しました'
-        })
+      this.eosContract.update(
+        this.account.name, this.modalContact.id, this.modalContact.name, this.modalContact.address, this.modalContact.tel,
+        { authorization: this.account.name }
+      ).then(result => {
+        // トランザクション送信成功
+        this.warning = 'トランザクションを送信しました'
+      }).then(async () => {
+        // トランザクションがブロックに含められたので、データを取得しなおす
+        this.refreshContracts()
+        this.info = '連絡先を更新しました'
       })
     }
   },
