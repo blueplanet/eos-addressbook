@@ -68,6 +68,8 @@ import { required, minLength, maxLength } from "vuelidate/lib/validators"
 import Eos from 'eosjs'
 import ScatterJS from 'scatter-js/dist/scatter.esm'
 
+const CONTRACT_ACCOUNT = 'eosbookaddrs'
+
 export default {
   data () {
     return {
@@ -120,7 +122,6 @@ export default {
     const network = {
       blockchain: 'eos',
       protocol: 'https',
-      // host: 'api-kylin.eoslaomao.com',
       host: 'api.jeda.one',
       port: 443,
       chainId: 'aca376f206b8fc25a6ed44dbdc66547c36c6c33e3a119ffbeaef943642f0e906'
@@ -138,11 +139,15 @@ export default {
     const eos = scatter.eos(network, Eos, eosOptions);
     window.scatter = null;
 
-    const result = await eos.getTableRows(true, 'eosbookaddrs', 'eosbookaddrs', 'people')
+    const result = await this.eos.getTableRows(true, CONTRACT_ACCOUNT, CONTRACT_ACCOUNT, 'people')
 
     return { eos, account, contacts: result.rows }
   },
   methods: {
+    refreshContracts () {
+      const result = await this.eos.getTableRows(true, CONTRACT_ACCOUNT, CONTRACT_ACCOUNT, 'people')
+      this.contacts = result.rows
+    },
     newContact () {
       this.modalContact = {}
       this.showModal = true
@@ -166,8 +171,7 @@ export default {
             this.warning = 'トランザクションを送信しました'
           }).then(async () => {
             // トランザクションがブロックに含められたので、データを取得しなおす
-            const result = await this.eos.getTableRows(true, 'eosbookaddrs', 'eosbookaddrs', 'people')
-            this.contacts = result.rows
+            this.refreshContracts()
             this.info = '連絡先を削除しました'
           })
         })
@@ -195,8 +199,7 @@ export default {
           this.warning = 'トランザクションを送信しました'
         }).then(async () => {
           // トランザクションがブロックに含められたので、データを取得しなおす
-          const result = await this.eos.getTableRows(true, 'eosbookaddrs', 'eosbookaddrs', 'people')
-          this.contacts = result.rows
+          this.refreshContracts()
           this.info = '連絡先を登録しました'
         })
       })
@@ -214,15 +217,11 @@ export default {
           this.warning = 'トランザクションを送信しました'
         }).then(async () => {
           // トランザクションがブロックに含められたので、データを取得しなおす
-          const result = await this.eos.getTableRows(true, 'eosbookaddrs', 'eosbookaddrs', 'people')
-          this.contacts = result.rows
+          this.refreshContracts()
           this.info = '連絡先を更新しました'
         })
       })
     }
-  },
-
-  created() {
   },
 }
 </script>
