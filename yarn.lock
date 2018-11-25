@@ -1134,7 +1134,7 @@ async-eventemitter@^0.2.2:
   dependencies:
     async "^2.4.0"
 
-"async-eventemitter@github:ahultgren/async-eventemitter#fa06e39e56786ba541c180061dbf2c0a5bbf951c":
+async-eventemitter@ahultgren/async-eventemitter#fa06e39e56786ba541c180061dbf2c0a5bbf951c:
   version "0.2.3"
   resolved "https://codeload.github.com/ahultgren/async-eventemitter/tar.gz/fa06e39e56786ba541c180061dbf2c0a5bbf951c"
   dependencies:
@@ -3295,7 +3295,7 @@ eosjs-ecc@4.0.4:
     ecurve "^1.0.5"
     randombytes "^2.0.5"
 
-eosjs@^16.0.2, eosjs@^16.0.9:
+eosjs@16.0.9, eosjs@^16.0.2:
   version "16.0.9"
   resolved "https://registry.yarnpkg.com/eosjs/-/eosjs-16.0.9.tgz#ee3790f2f038079e71981f20354be8d1d98de873"
   integrity sha512-aYgzbgH2RhnmYVzEmK4AD6UIboJI54PGYQUesv2i8rCqYhWij+xQx7PtALJ481cxZnQgmFn8s2KMkgG07P5/Ug==
