@@ -122,12 +122,12 @@ export default {
     const network = {
       blockchain: 'eos',
       protocol: 'https',
-      host: 'api.jeda.one',
+      host: 'api-kylin.eoslaomao.com',
       port: 443,
-      chainId: 'aca376f206b8fc25a6ed44dbdc66547c36c6c33e3a119ffbeaef943642f0e906'
+      chainId: '5fff1dae8dc8e2fc4d5b23b2c7665c97f9e9d8edf2b6485a86ba311c25639191'
     }
 
-    const connected = await ScatterJS.scatter.connect("eos-mainnet-addressbook")
+    const connected = await ScatterJS.scatter.connect("eos-kylin-addressbook")
     if(!connected) return false;
 
     const scatter = ScatterJS.scatter;
@@ -139,7 +139,7 @@ export default {
     const eos = scatter.eos(network, Eos, eosOptions);
     window.scatter = null;
 
-    const result = await this.eos.getTableRows(true, CONTRACT_ACCOUNT, CONTRACT_ACCOUNT, 'people')
+    const result = await eos.getTableRows(true, CONTRACT_ACCOUNT, CONTRACT_ACCOUNT, 'people')
 
     return { eos, account, contacts: result.rows }
   },
