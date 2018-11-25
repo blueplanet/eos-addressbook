@@ -144,7 +144,7 @@ export default {
     return { eos, account, contacts: result.rows }
   },
   methods: {
-    refreshContracts () {
+    async refreshContracts () {
       const result = await this.eos.getTableRows(true, CONTRACT_ACCOUNT, CONTRACT_ACCOUNT, 'people')
       this.contacts = result.rows
     },
